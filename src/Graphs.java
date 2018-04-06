@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.util.PriorityQueue;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
@@ -12,7 +13,10 @@ public class Graphs {
 	public static void main(String[] args) 
 	{
 		Prim p=new Prim();
+		System.out.println("Prim's algorithm");
 		p.MST();
+		System.out.println("Kruskal's algorithm");
+		System.out.println("Floyd-Warshall's algorithm");
 	}
 }
 
@@ -22,8 +26,10 @@ class Read{
 
 	public String[] labels= new String[5];
 	public int[][] adjacency= new int[5][5];
+	Edge[][] e= new Edge[5][5];
 	public Read() {
 		int count=0;
+		int n=0;
 		Charset charset=Charset.forName("US-ASCII");
 		try (BufferedReader reader = Files.newBufferedReader(FileSystems.getDefault().getPath("input", "input.txt"), charset))
 		{
@@ -45,6 +51,18 @@ class Read{
 						{
 							adjacency[0][i]=Integer.parseInt(words[i]);
 							System.out.print(adjacency[0][i]	+	",");
+							if (adjacency[0][i]>=1000)
+							{
+								adjacency[0][i]=Integer.MAX_VALUE;
+							}
+							if (adjacency[0][i]!=Integer.MAX_VALUE) {
+								e[0][n]=new Edge(adjacency[0][i], i);
+								n=n+1;
+							}
+							else {
+								e[0][n]=new Edge(0, i);
+								n=n+1;
+							}
 						}
 						break;
 					case 2:
@@ -52,6 +70,18 @@ class Read{
 						{
 							adjacency[1][i]=Integer.parseInt(words[i]);
 							System.out.print(adjacency[1][i]	+	",");
+							if (adjacency[1][i]>=1000)
+							{
+								adjacency[1][i]=Integer.MAX_VALUE;
+							}
+							if (adjacency[1][i]!=Integer.MAX_VALUE && adjacency[1][i]!=0) {
+								e[1][n]=new Edge(adjacency[1][i], i);
+								n=n+1;
+							}
+							else {
+								e[1][n]=new Edge(0, i);
+								n=n+1;
+							}
 						}
 						break;
 					case 3:
@@ -59,6 +89,18 @@ class Read{
 						{
 							adjacency[2][i]=Integer.parseInt(words[i]);
 							System.out.print(adjacency[2][i]	+	",");
+							if (adjacency[2][i]>=1000)
+							{
+								adjacency[2][i]=Integer.MAX_VALUE;
+							}
+							if (adjacency[2][i]!=Integer.MAX_VALUE && adjacency[2][i]!=0) {
+								e[2][n]=new Edge(adjacency[2][i], i);
+								n=n+1;
+							}
+							else {
+								e[2][n]=new Edge(0, i);
+								n=n+1;
+							}
 						}
 						break;
 					case 4:
@@ -66,6 +108,18 @@ class Read{
 						{
 							adjacency[3][i]=Integer.parseInt(words[i]);
 							System.out.print(adjacency[3][i]	+	",");
+							if (adjacency[3][i]>=1000)
+							{
+								adjacency[3][i]=Integer.MAX_VALUE;
+							}
+							if (adjacency[3][i]!=Integer.MAX_VALUE && adjacency[3][i]!=0) {
+								e[3][n]=new Edge(adjacency[3][i], i);
+								n=n+1;
+							}
+							else {
+								e[3][n]=new Edge(0, i);
+								n=n+1;
+							}
 						}
 						break;
 					case 5:
@@ -73,11 +127,24 @@ class Read{
 						{
 							adjacency[4][i]=Integer.parseInt(words[i]);
 							System.out.print(adjacency[4][i]	+	",");
+							if (adjacency[4][i]>=1000)
+							{
+								adjacency[4][i]=Integer.MAX_VALUE;
+							}
+							if (adjacency[4][i]!=Integer.MAX_VALUE && adjacency[4][i]!=0) {
+								e[4][n]=new Edge(adjacency[4][i], i);
+								n=n+1;
+							}
+							else {
+								e[4][n]=new Edge(0, i);
+								n=n+1;
+							}
 						}
 						break;
 					}
 					count=count+1;
 					System.out.println();
+					n=0;
 				}
 			} catch (IOException x)
 			{
@@ -94,73 +161,98 @@ class Read{
 	public int[][] getValue() {
 		return adjacency;
 	}
+	public Edge[][] getEdge() {
+		return e;
+	}
 }
 
 ///////////////////////////////////////////////////////////////
+class Edge implements Comparable<Edge>{
+	
+	int key, end;
+	
+	public Edge(int k, int e) {
+		key=k;
+		end=e;
+	}
+	
+	public int compareTo(Edge e) {
+		return key-e.key;
+	}
+}
 
+////////////////////////////////////////////////////////////////
 class Prim{
 	
 	public Read r;
 	public void MST() 
 	{
 		r= new Read();
-		int value[][]=r.getValue();
 		int size=r.getSize();
 		int key[]=new int[size];
 		int name[]=new int[size];
 		Boolean set[]=new Boolean[size];
+		Edge[][] e=r.getEdge();
+		int Tree;
 		
+		PriorityQueue<Edge> queue= new PriorityQueue<Edge>();
 		for(int i=0; i<size; i++) {
-			key[i]=Integer.MAX_VALUE;
 			set[i]=false;
 		}
 		
 		key[0]=0;
 		name[0]=-1;
+		set[0]=true;
+		Tree=0;
 		
-		for (int i=0; i<size-1;i++) {
-			int min=findMin(key,set);
-			
-			set[i]=true;
-			
-			for(int j=0; j<size;j++) {
-				if(set[j]==false && value[min][j]!=0 && value[min][j]<key[j]) {
-					name[j]=min;
-					key[j]=value[min][j];
-				}
+		for(int i=0; i<e[0].length; i++) {
+			if (e[0][i].key>0) {
+				queue.add(e[key[0]][i]);
+			}
+			if (e[i][0].key>0) {
+				queue.add(e[i][key[0]]);
 			}
 		}
-		print(name, value);
-	}
-	
-	public int findMin(int key[], Boolean set[]) 
-	{
-		int size=r.getSize();
-		int min=Integer.MAX_VALUE;
-		int min2=-1;
-		for(int i=0; i<size; i++) {
-			if(set[i]==false && key[i]<min) {
-				min=key[i];
-				min2=i;
+		
+		while(!queue.isEmpty()) {
+			Edge temp=queue.remove();
+			int next=temp.end;
+			if (set[temp.end]) {
+				continue;
+			}
+			set[temp.end]=true;
+			System.out.println(r.getName(Tree)	+	"-"	+	r.getName(temp.end));
+			Tree=temp.end;
+			
+			for(int i=0; i<e[next].length;i++) {
+				queue.add(e[key[next]][i]);
 			}
 		}
-		return min2;
-	}
-	public void print(int[] name, int[][] value) {
-		int size=r.getSize();
-		String[] labels=new String[size];
-		
-		for (int i=1; i<size; i++) {
-			System.out.println(name[i]	+	"-"	+i);
-		}
-		
 	}
 }
 
 /////////////////////////////////////////////////////
 
 class Kruskal {
-	
+	public Read r;
+	public void MST() {
+		r= new Read();
+		int size=r.getSize();
+		int key[]=new int[size];
+		int name[]=new int[size];
+		Boolean set[]=new Boolean[size];
+		Edge[][] e=r.getEdge();
+		int Tree;
+		
+		PriorityQueue<Edge> queue= new PriorityQueue<Edge>();
+		for(int i=0; i<size; i++) {
+			for (int j=0; j<e[size].length; j++) {
+				if (e[i][j].key>0) {
+					queue.add(e[key[0]][i]);
+				}
+			}
+		}
+	}
 }
 
 //////////////////////////////////////////////////////
