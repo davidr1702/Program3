@@ -26,6 +26,7 @@ public class Graphs {
 		k.MST();
 		System.out.println();
 		System.out.println("Floyd-Warshall's algorithm");
+		f.MST();
 	}
 }
 
@@ -350,5 +351,63 @@ class Kruskal {
 //////////////////////////////////////////////////////
 
 class FloydWarshall{
+	public Read r;
+	public void MST() {
+		r = new Read();
+		Edge[][] e = r.getEdge();
+		int size = r.getSize();
+		
+		int graph[][]=new int[size][size];
+		for (int i=0; i<size; i++) {
+			for (int j=0; j<size; j++) {
+				if(e[i][j].key==0 && i!=j)
+				{
+					graph[i][j]=Integer.MAX_VALUE;
+				}
+				else {
+					graph[i][j]=e[i][j].key;
+				}
+			}
+		}
+		
+		for(int k = 0; k < size; ++k) {
+			for(int i = 0; i < size; ++i) {
+				for(int j = 0; j < size; ++j) {
+					if (graph[i][j]>(graph[i][k]+graph[k][j]) && (graph[i][k]+graph[k][j])>0) {
+						graph[i][j]=graph[i][k]+graph[k][j];
+					}
+					printE(size, graph);
+				}
+			}
+		}
+		
+	}
+	private Edge[][] realign(int size, Edge[][] e) {
+		for(int i = 0; i < size; i++) {
+			for(int j = 0; j < size; j++) {
+				if(i != j) {
+					if(e[i][j].key == 0) {
+						e[i][j].key = -1;
+					}
+				}
+			}
+		}
+		return e;
+	}
 	
+	public void printE(int size, int[][] graph) {
+		for(int i = 0; i < size; i++) {
+			for(int j = 0; j < size; j++) {
+				if(graph[i][j] != Integer.MAX_VALUE) {
+					System.out.print(graph[i][j]);
+				}
+				else {
+					System.out.print("INF");
+				}
+				System.out.print(" ");
+			}
+			System.out.println();
+		}
+		System.out.println("--------------");
+	}
 }
